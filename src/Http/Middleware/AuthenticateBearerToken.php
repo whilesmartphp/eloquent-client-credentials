@@ -13,7 +13,7 @@ class AuthenticateBearerToken
     {
         $token = $request->bearerToken();
 
-        if (!$token) {
+        if (! $token) {
             return response()->json([
                 'message' => __('client-credentials::messages.missing_token'),
             ], 401);
@@ -22,13 +22,13 @@ class AuthenticateBearerToken
         $hashedToken = hash('sha256', $token);
         $accessToken = AccessToken::where('token', $hashedToken)->first();
 
-        if (!$accessToken || !$accessToken->isValid()) {
+        if (! $accessToken || ! $accessToken->isValid()) {
             return response()->json([
                 'message' => __('client-credentials::messages.invalid_token'),
             ], 401);
         }
 
-        if ($scope && !in_array($scope, $accessToken->scopes ?? [])) {
+        if ($scope && ! in_array($scope, $accessToken->scopes ?? [])) {
             return response()->json([
                 'message' => __('client-credentials::messages.insufficient_scope'),
             ], 403);

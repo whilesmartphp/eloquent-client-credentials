@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Whilesmart\EloquentClientCredentials\Models\Client;
 use Whilesmart\EloquentClientCredentials\Models\AccessToken;
+use Whilesmart\EloquentClientCredentials\Models\Client;
 
 class ClientCredentialsTest extends TestCase
 {

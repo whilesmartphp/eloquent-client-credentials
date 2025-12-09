@@ -327,7 +327,7 @@ class TokenControllerTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/oauth/revoke', [], [
-            'Authorization' => 'Bearer ' . $plainToken,
+            'Authorization' => 'Bearer '.$plainToken,
         ]);
 
         $response->assertStatus(200);
@@ -364,7 +364,7 @@ class TokenControllerTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/oauth/revoke', [], [
-            'Authorization' => 'Bearer ' . $plainToken,
+            'Authorization' => 'Bearer '.$plainToken,
         ]);
 
         $response->assertStatus(200);

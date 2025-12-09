@@ -26,10 +26,11 @@ class MiddlewareTest extends TestCase
         $request->headers->set('X-Client-ID', $client->id);
         $request->headers->set('X-Client-Secret', $client->plainSecret);
 
-        $middleware = new AuthenticateClient();
+        $middleware = new AuthenticateClient;
 
         $response = $middleware->handle($request, function ($req) {
             $this->assertNotNull($req->get('client'));
+
             return response()->json(['success' => true]);
         });
 
@@ -40,7 +41,7 @@ class MiddlewareTest extends TestCase
     {
         $request = Request::create('/test', 'GET');
 
-        $middleware = new AuthenticateClient();
+        $middleware = new AuthenticateClient;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -55,7 +56,7 @@ class MiddlewareTest extends TestCase
         $request->headers->set('X-Client-ID', 'nonexistent-id');
         $request->headers->set('X-Client-Secret', 'some-secret');
 
-        $middleware = new AuthenticateClient();
+        $middleware = new AuthenticateClient;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -76,7 +77,7 @@ class MiddlewareTest extends TestCase
         $request->headers->set('X-Client-ID', $client->id);
         $request->headers->set('X-Client-Secret', 'wrong-secret');
 
-        $middleware = new AuthenticateClient();
+        $middleware = new AuthenticateClient;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -98,7 +99,7 @@ class MiddlewareTest extends TestCase
         $request->headers->set('X-Client-ID', $client->id);
         $request->headers->set('X-Client-Secret', $client->plainSecret);
 
-        $middleware = new AuthenticateClient();
+        $middleware = new AuthenticateClient;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -117,15 +118,16 @@ class MiddlewareTest extends TestCase
             'owner_id' => '123',
         ]);
 
-        $credentials = base64_encode($client->id . ':' . $client->plainSecret);
+        $credentials = base64_encode($client->id.':'.$client->plainSecret);
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Basic ' . $credentials);
+        $request->headers->set('Authorization', 'Basic '.$credentials);
 
-        $middleware = new AuthenticateBasicAuth();
+        $middleware = new AuthenticateBasicAuth;
 
         $response = $middleware->handle($request, function ($req) {
             $this->assertNotNull($req->get('client'));
+
             return response()->json(['success' => true]);
         });
 
@@ -136,7 +138,7 @@ class MiddlewareTest extends TestCase
     {
         $request = Request::create('/test', 'GET');
 
-        $middleware = new AuthenticateBasicAuth();
+        $middleware = new AuthenticateBasicAuth;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -151,7 +153,7 @@ class MiddlewareTest extends TestCase
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'Bearer some-token');
 
-        $middleware = new AuthenticateBasicAuth();
+        $middleware = new AuthenticateBasicAuth;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -165,7 +167,7 @@ class MiddlewareTest extends TestCase
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'Basic invalid-base64!!!');
 
-        $middleware = new AuthenticateBasicAuth();
+        $middleware = new AuthenticateBasicAuth;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -179,9 +181,9 @@ class MiddlewareTest extends TestCase
         $credentials = base64_encode('nonexistent-id:some-secret');
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Basic ' . $credentials);
+        $request->headers->set('Authorization', 'Basic '.$credentials);
 
-        $middleware = new AuthenticateBasicAuth();
+        $middleware = new AuthenticateBasicAuth;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -198,12 +200,12 @@ class MiddlewareTest extends TestCase
             'owner_id' => '123',
         ]);
 
-        $credentials = base64_encode($client->id . ':wrong-secret');
+        $credentials = base64_encode($client->id.':wrong-secret');
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Basic ' . $credentials);
+        $request->headers->set('Authorization', 'Basic '.$credentials);
 
-        $middleware = new AuthenticateBasicAuth();
+        $middleware = new AuthenticateBasicAuth;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -221,12 +223,12 @@ class MiddlewareTest extends TestCase
             'revoked' => true,
         ]);
 
-        $credentials = base64_encode($client->id . ':' . $client->plainSecret);
+        $credentials = base64_encode($client->id.':'.$client->plainSecret);
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Basic ' . $credentials);
+        $request->headers->set('Authorization', 'Basic '.$credentials);
 
-        $middleware = new AuthenticateBasicAuth();
+        $middleware = new AuthenticateBasicAuth;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -256,13 +258,14 @@ class MiddlewareTest extends TestCase
         ]);
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Bearer ' . $plainToken);
+        $request->headers->set('Authorization', 'Bearer '.$plainToken);
 
-        $middleware = new AuthenticateBearerToken();
+        $middleware = new AuthenticateBearerToken;
 
         $response = $middleware->handle($request, function ($req) {
             $this->assertNotNull($req->get('client'));
             $this->assertNotNull($req->get('accessToken'));
+
             return response()->json(['success' => true]);
         });
 
@@ -273,7 +276,7 @@ class MiddlewareTest extends TestCase
     {
         $request = Request::create('/test', 'GET');
 
-        $middleware = new AuthenticateBearerToken();
+        $middleware = new AuthenticateBearerToken;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -287,7 +290,7 @@ class MiddlewareTest extends TestCase
         $request = Request::create('/test', 'GET');
         $request->headers->set('Authorization', 'Bearer invalid-token');
 
-        $middleware = new AuthenticateBearerToken();
+        $middleware = new AuthenticateBearerToken;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -315,9 +318,9 @@ class MiddlewareTest extends TestCase
         ]);
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Bearer ' . $plainToken);
+        $request->headers->set('Authorization', 'Bearer '.$plainToken);
 
-        $middleware = new AuthenticateBearerToken();
+        $middleware = new AuthenticateBearerToken;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -345,9 +348,9 @@ class MiddlewareTest extends TestCase
         ]);
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Bearer ' . $plainToken);
+        $request->headers->set('Authorization', 'Bearer '.$plainToken);
 
-        $middleware = new AuthenticateBearerToken();
+        $middleware = new AuthenticateBearerToken;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -376,9 +379,9 @@ class MiddlewareTest extends TestCase
         ]);
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Bearer ' . $plainToken);
+        $request->headers->set('Authorization', 'Bearer '.$plainToken);
 
-        $middleware = new AuthenticateBearerToken();
+        $middleware = new AuthenticateBearerToken;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);
@@ -407,9 +410,9 @@ class MiddlewareTest extends TestCase
         ]);
 
         $request = Request::create('/test', 'GET');
-        $request->headers->set('Authorization', 'Bearer ' . $plainToken);
+        $request->headers->set('Authorization', 'Bearer '.$plainToken);
 
-        $middleware = new AuthenticateBearerToken();
+        $middleware = new AuthenticateBearerToken;
 
         $response = $middleware->handle($request, function ($req) {
             return response()->json(['success' => true]);

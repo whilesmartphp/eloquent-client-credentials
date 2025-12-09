@@ -11,7 +11,7 @@ use Whilesmart\EloquentClientCredentials\Traits\HasClientCredentials;
 
 class Client extends Model
 {
-    use HasUuids, HasClientCredentials, Sluggable;
+    use HasClientCredentials, HasUuids, Sluggable;
 
     protected $table = 'clients';
 
