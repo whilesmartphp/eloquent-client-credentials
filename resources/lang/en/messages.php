@@ -16,4 +16,5 @@ return [
     'insufficient_scope' => 'Insufficient scope for this request.',
     'refresh_tokens_disabled' => 'Refresh tokens are not enabled.',
     'invalid_refresh_token' => 'Invalid or expired refresh token.',
+    'owner_required' => 'Authentication required for client operations.',
 ];

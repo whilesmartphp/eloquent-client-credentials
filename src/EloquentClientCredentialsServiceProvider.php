@@ -39,7 +39,7 @@ class EloquentClientCredentialsServiceProvider extends ServiceProvider
 
     protected function registerRoutes(): void
     {
-        if (!config('client-credentials.routes.enabled', false)) {
+        if (! config('client-credentials.routes.enabled', false)) {
             return;
         }
 

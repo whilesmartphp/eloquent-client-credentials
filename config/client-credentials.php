@@ -8,14 +8,12 @@ return [
     | Default Owner Resolver
     |--------------------------------------------------------------------------
     |
-    | This callable resolves the default owner for client operations.
-    | It receives the Request and should return the owner model instance.
+    | This class resolves the default owner for client operations.
+    | It must implement OwnerResolverInterface and receives the Request.
     | Applications can override this per-request by passing an owner directly.
     |
     */
-    'owner_resolver' => function ($request) {
-        return $request->user();
-    },
+    'owner_resolver' => \Whilesmart\EloquentClientCredentials\Resolvers\DefaultOwnerResolver::class,
 
     'middleware_hooks' => [],
 

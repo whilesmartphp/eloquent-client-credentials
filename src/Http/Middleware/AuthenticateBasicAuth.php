@@ -12,13 +12,13 @@ class AuthenticateBasicAuth
     {
         $authorization = $request->header('Authorization');
 
-        if (!$authorization || !str_starts_with($authorization, 'Basic ')) {
+        if (! $authorization || ! str_starts_with($authorization, 'Basic ')) {
             return $this->unauthorized(__('client-credentials::messages.missing_credentials'));
         }
 
         $credentials = base64_decode(substr($authorization, 6));
-        
-        if (!$credentials || !str_contains($credentials, ':')) {
+
+        if (! $credentials || ! str_contains($credentials, ':')) {
             return $this->unauthorized(__('client-credentials::messages.invalid_credentials'));
         }
 
@@ -27,11 +27,11 @@ class AuthenticateBasicAuth
         $modelClass = $model ?? config('client-credentials.default_model');
         $client = $modelClass::find($clientId);
 
-        if (!$client) {
+        if (! $client) {
             return $this->unauthorized(__('client-credentials::messages.invalid_client'));
         }
 
-        if (method_exists($client, 'verifySecret') && !$client->verifySecret($clientSecret)) {
+        if (method_exists($client, 'verifySecret') && ! $client->verifySecret($clientSecret)) {
             return $this->unauthorized(__('client-credentials::messages.invalid_secret'));
         }
 

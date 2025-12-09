@@ -27,9 +27,7 @@ php artisan migrate
 return [
     'default_model' => \Whilesmart\EloquentClientCredentials\Models\Client::class,
 
-    'owner_resolver' => function ($request) {
-        return $request->user();
-    },
+    'owner_resolver' => \Whilesmart\EloquentClientCredentials\Resolvers\DefaultOwnerResolver::class,
 
     'middleware_hooks' => [],
 
@@ -101,12 +99,24 @@ The trait provides:
 
 ### Owner Resolver
 
-Configure how the owner is resolved for client operations:
+Configure how the owner is resolved for client operations. Create a custom resolver:
 
 ```php
-'owner_resolver' => function ($request) {
-    return $request->user();
-},
+use Whilesmart\EloquentClientCredentials\Contracts\OwnerResolverInterface;
+
+class CustomOwnerResolver implements OwnerResolverInterface
+{
+    public function resolve(Request $request): ?Model
+    {
+        return $request->user()->currentTeam;
+    }
+}
+```
+
+Register in config:
+
+```php
+'owner_resolver' => \App\Resolvers\CustomOwnerResolver::class,
 ```
 
 You can also pass an owner directly when using the controller programmatically:

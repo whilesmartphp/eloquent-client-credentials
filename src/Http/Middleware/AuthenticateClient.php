@@ -13,7 +13,7 @@ class AuthenticateClient
         $clientId = $request->header('X-Client-ID');
         $clientSecret = $request->header('X-Client-Secret');
 
-        if (!$clientId || !$clientSecret) {
+        if (! $clientId || ! $clientSecret) {
             return response()->json([
                 'message' => __('client-credentials.missing_credentials'),
             ], 401);
@@ -22,13 +22,13 @@ class AuthenticateClient
         $modelClass = $model ?? config('client-credentials.default_model');
         $client = $modelClass::find($clientId);
 
-        if (!$client) {
+        if (! $client) {
             return response()->json([
                 'message' => __('client-credentials.invalid_client'),
             ], 401);
         }
 
-        if (method_exists($client, 'verifySecret') && !$client->verifySecret($clientSecret)) {
+        if (method_exists($client, 'verifySecret') && ! $client->verifySecret($clientSecret)) {
             return response()->json([
                 'message' => __('client-credentials.invalid_secret'),
             ], 401);

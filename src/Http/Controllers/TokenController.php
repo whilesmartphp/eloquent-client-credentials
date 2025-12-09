@@ -34,7 +34,7 @@ class TokenController extends ApiController
         $model = config('client-credentials.default_model');
         $client = $model::find($request->client_id);
 
-        if (!$client || !$client->verifySecret($request->client_secret)) {
+        if (! $client || ! $client->verifySecret($request->client_secret)) {
             return $this->failure(__('client-credentials::messages.invalid_credentials'), 401);
         }
 
@@ -84,7 +84,7 @@ class TokenController extends ApiController
 
     protected function handleRefreshToken(Request $request): JsonResponse
     {
-        if (!config('client-credentials.oauth.refresh_tokens_enabled', false)) {
+        if (! config('client-credentials.oauth.refresh_tokens_enabled', false)) {
             return $this->failure(__('client-credentials::messages.refresh_tokens_disabled'), 400);
         }
 
@@ -96,14 +96,14 @@ class TokenController extends ApiController
         $hashedRefreshToken = hash('sha256', $request->refresh_token);
         $refreshToken = RefreshToken::where('token', $hashedRefreshToken)->first();
 
-        if (!$refreshToken || !$refreshToken->isValid()) {
+        if (! $refreshToken || ! $refreshToken->isValid()) {
             return $this->failure(__('client-credentials::messages.invalid_refresh_token'), 401);
         }
 
         $oldAccessToken = $refreshToken->accessToken;
         $client = $oldAccessToken->client;
 
-        if (!$client || $client->revoked) {
+        if (! $client || $client->revoked) {
             return $this->failure(__('client-credentials::messages.client_revoked'), 403);
         }
 
@@ -150,14 +150,14 @@ class TokenController extends ApiController
 
         $token = $request->bearerToken();
 
-        if (!$token) {
+        if (! $token) {
             return $this->failure(__('client-credentials::messages.missing_token'), 401);
         }
 
         $hashedToken = hash('sha256', $token);
         $accessToken = AccessToken::where('token', $hashedToken)->first();
 
-        if (!$accessToken) {
+        if (! $accessToken) {
             return $this->failure(__('client-credentials::messages.invalid_token'), 401);
         }
 
