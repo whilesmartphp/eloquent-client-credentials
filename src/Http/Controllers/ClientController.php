@@ -24,9 +24,18 @@ class ClientController extends ApiController
             return $owner;
         }
 
-        $resolver = config('client-credentials.owner_resolver');
+        $resolverClass = config('client-credentials.owner_resolver');
+        $resolver = app($resolverClass);
+        $resolvedOwner = $resolver->resolve($request);
 
-        return $resolver($request);
+        if (! $resolvedOwner) {
+            throw new \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException(
+                'Bearer',
+                __('client-credentials::messages.owner_required')
+            );
+        }
+
+        return $resolvedOwner;
     }
 
     public function index(Request $request, ?Model $owner = null): JsonResponse
