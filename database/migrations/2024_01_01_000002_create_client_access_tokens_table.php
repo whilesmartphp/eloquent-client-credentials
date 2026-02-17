@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('client_access_tokens', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->nullableMorphs('client');
+            $table->nullableUuidMorphs('client');
             $table->string('token', 80)->unique();
             $table->json('scopes')->nullable();
             $table->timestamp('expires_at')->nullable();
