@@ -1,7 +1,23 @@
 <?php
 
+use Whilesmart\EloquentClientCredentials\Models\Client;
+use Whilesmart\EloquentClientCredentials\Resolvers\DefaultOwnerResolver;
+
 return [
-    'default_model' => \Whilesmart\EloquentClientCredentials\Models\Client::class,
+    'default_model' => Client::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | UUID primary keys
+    |--------------------------------------------------------------------------
+    |
+    | Use UUID primary keys (and uuid morph / foreign-key columns) for clients,
+    | access tokens, and refresh tokens, instead of auto-incrementing integers.
+    | Must be set before the migrations run. Set this to false when the owning
+    | application uses integer keys and you want client IDs to match.
+    |
+    */
+    'uuids' => (bool) env('CLIENT_CREDENTIALS_UUIDS', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -13,7 +29,7 @@ return [
     | Applications can override this per-request by passing an owner directly.
     |
     */
-    'owner_resolver' => \Whilesmart\EloquentClientCredentials\Resolvers\DefaultOwnerResolver::class,
+    'owner_resolver' => DefaultOwnerResolver::class,
 
     'middleware_hooks' => [],
 

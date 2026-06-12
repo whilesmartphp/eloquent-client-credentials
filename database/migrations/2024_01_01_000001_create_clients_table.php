@@ -8,8 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        $uuids = (bool) config('client-credentials.uuids', true);
+
+        Schema::create('clients', function (Blueprint $table) use ($uuids) {
+            if ($uuids) {
+                $table->uuid('id')->primary();
+            } else {
+                $table->id();
+            }
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();

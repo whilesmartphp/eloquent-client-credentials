@@ -2,13 +2,13 @@
 
 namespace Whilesmart\EloquentClientCredentials\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Whilesmart\EloquentClientCredentials\Concerns\HasConfigurableIds;
 
 class RefreshToken extends Model
 {
-    use HasUuids;
+    use HasConfigurableIds;
 
     protected $table = 'client_refresh_tokens';
 
