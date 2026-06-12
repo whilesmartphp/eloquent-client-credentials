@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Whilesmart\EloquentClientCredentials\Http\Controllers\TokenController;
 use Whilesmart\EloquentClientCredentials\Models\AccessToken;
 use Whilesmart\EloquentClientCredentials\Models\Client;
 use Whilesmart\EloquentClientCredentials\Models\RefreshToken;
@@ -20,12 +21,12 @@ class TokenControllerTest extends TestCase
     protected function defineRoutes($router): void
     {
         $router->post('api/oauth/token', [
-            \Whilesmart\EloquentClientCredentials\Http\Controllers\TokenController::class,
+            TokenController::class,
             'issue',
         ])->name('client-credentials.token.issue');
 
         $router->post('api/oauth/revoke', [
-            \Whilesmart\EloquentClientCredentials\Http\Controllers\TokenController::class,
+            TokenController::class,
             'revoke',
         ])->name('client-credentials.token.revoke');
     }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Whilesmart\EloquentClientCredentials\Enums\HookAction;
 use Whilesmart\EloquentClientCredentials\Traits\HasMiddlewareHooks;
 
@@ -29,7 +30,7 @@ class ClientController extends ApiController
         $resolvedOwner = $resolver->resolve($request);
 
         if (! $resolvedOwner) {
-            throw new \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException(
+            throw new UnauthorizedHttpException(
                 'Bearer',
                 __('client-credentials::messages.owner_required')
             );
