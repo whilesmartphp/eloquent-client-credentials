@@ -8,9 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('client_access_tokens', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->nullableUuidMorphs('client');
+        $uuids = (bool) config('client-credentials.uuids', true);
+
+        Schema::create('client_access_tokens', function (Blueprint $table) use ($uuids) {
+            if ($uuids) {
+                $table->uuid('id')->primary();
+                $table->nullableUuidMorphs('client');
+            } else {
+                $table->id();
+                $table->nullableMorphs('client');
+            }
             $table->string('token', 80)->unique();
             $table->json('scopes')->nullable();
             $table->timestamp('expires_at')->nullable();

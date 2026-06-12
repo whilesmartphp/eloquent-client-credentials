@@ -3,15 +3,15 @@
 namespace Whilesmart\EloquentClientCredentials\Models;
 
 use Cviebrock\EloquentSluggable\Sluggable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Whilesmart\EloquentClientCredentials\Concerns\HasConfigurableIds;
 use Whilesmart\EloquentClientCredentials\Traits\HasClientCredentials;
 
 class Client extends Model
 {
-    use HasClientCredentials, HasUuids, Sluggable;
+    use HasClientCredentials, HasConfigurableIds, Sluggable;
 
     protected $table = 'clients';
 
