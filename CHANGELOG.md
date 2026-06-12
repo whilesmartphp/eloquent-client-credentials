@@ -5,12 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2025-12-09
+## [0.1.0] - 2026-06-12
 
 ### Added
-- Initial release
 - `HasClientCredentials` trait for adding client credentials to any Eloquent model
-- Default `Client` model with UUID, sluggable support, and polymorphic ownership
+- Default `Client` model with sluggable support and polymorphic ownership
 - `AccessToken` model for OAuth2 bearer token authentication
 - `RefreshToken` model with token rotation support
 - OAuth2 client credentials grant flow via `TokenController`
@@ -22,4 +21,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hook system with `HasMiddlewareHooks` trait and `MiddlewareHookInterface`
 - Configurable token lifetimes and refresh token support
 - Optional route registration
-- Full test suite with 50 tests
+- `client-credentials.uuids` config option (env `CLIENT_CREDENTIALS_UUIDS`, default `true`) to choose UUID or auto-incrementing integer primary keys for clients, access tokens, and refresh tokens, via the `HasConfigurableIds` trait
+- Full test suite
