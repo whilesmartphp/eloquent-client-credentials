@@ -40,6 +40,10 @@ class AuthenticateClient
             ], 403);
         }
 
+        if ($client && method_exists($client, 'markUsed')) {
+            $client->markUsed();
+        }
+
         $request->merge(['client' => $client]);
         $request->setUserResolver(fn () => $client);
 

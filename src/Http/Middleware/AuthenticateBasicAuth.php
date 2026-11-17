@@ -41,6 +41,10 @@ class AuthenticateBasicAuth
             ], 403);
         }
 
+        if ($client && method_exists($client, 'markUsed')) {
+            $client->markUsed();
+        }
+
         $request->merge(['client' => $client]);
 
         return $next($request);
