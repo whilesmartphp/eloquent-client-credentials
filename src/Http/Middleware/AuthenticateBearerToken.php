@@ -36,6 +36,10 @@ class AuthenticateBearerToken
 
         $client = $accessToken->client;
 
+        if ($client && method_exists($client, 'markUsed')) {
+            $client->markUsed();
+        }
+
         $request->merge(['client' => $client, 'accessToken' => $accessToken]);
 
         return $next($request);

@@ -1,7 +1,7 @@
 {
     "name": "whilesmart/eloquent-client-credentials",
     "description": "Add client credentials authentication to any Eloquent model",
-    "package-version": "0.1.0",
+    "package-version": "0.2.0",
     "type": "library",
     "license": "MIT",
     "authors": [

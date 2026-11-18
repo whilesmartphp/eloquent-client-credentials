@@ -283,6 +283,8 @@ Default client model with:
 - Sluggable name
 - Polymorphic owner relationship
 - Revocation support
+- An optional `type`, for keeping kinds of credentials apart (`Client::ofType('ci')`)
+- `last_used_at`, set when the client is issued a token or passes one of the package middlewares; call `markUsed()` when you authenticate clients yourself
 
 ### AccessToken
 

@@ -23,10 +23,12 @@ class Client extends Model
         'owner_type',
         'owner_id',
         'revoked',
+        'type',
     ];
 
     protected $casts = [
         'revoked' => 'boolean',
+        'last_used_at' => 'datetime',
     ];
 
     public function sluggable(): array
@@ -63,5 +65,17 @@ class Client extends Model
     public function scopeActive($query)
     {
         return $query->where('revoked', false);
+    }
+
+    public function scopeOfType($query, string $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    public function markUsed(): void
+    {
+        $now = now();
+        $this->newQueryWithoutScopes()->whereKey($this->getKey())->toBase()->update(['last_used_at' => $now]);
+        $this->forceFill(['last_used_at' => $now])->syncOriginalAttribute('last_used_at');
     }
 }

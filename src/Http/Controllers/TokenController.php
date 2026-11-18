@@ -42,6 +42,10 @@ class TokenController extends ApiController
             return $this->failure(__('client-credentials::messages.client_revoked'), 403);
         }
 
+        if (method_exists($client, 'markUsed')) {
+            $client->markUsed();
+        }
+
         $scopes = $request->scope ? explode(' ', $request->scope) : [];
         $tokenLifetime = config('client-credentials.oauth.token_lifetime', 3600);
 
@@ -109,6 +113,10 @@ class TokenController extends ApiController
 
         $refreshToken->revoke();
         $oldAccessToken->revoke();
+
+        if (method_exists($client, 'markUsed')) {
+            $client->markUsed();
+        }
 
         $scopes = $oldAccessToken->scopes ?? [];
         $tokenLifetime = config('client-credentials.oauth.token_lifetime', 3600);
