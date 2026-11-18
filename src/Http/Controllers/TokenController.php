@@ -114,6 +114,10 @@ class TokenController extends ApiController
         $refreshToken->revoke();
         $oldAccessToken->revoke();
 
+        if (method_exists($client, 'markUsed')) {
+            $client->markUsed();
+        }
+
         $scopes = $oldAccessToken->scopes ?? [];
         $tokenLifetime = config('client-credentials.oauth.token_lifetime', 3600);
         $refreshTokenLifetime = config('client-credentials.oauth.refresh_token_lifetime', 86400 * 30);

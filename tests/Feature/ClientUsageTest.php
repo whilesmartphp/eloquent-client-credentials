@@ -43,6 +43,21 @@ class ClientUsageTest extends TestCase
         $this->assertSame('2026-11-17 11:00:00', $client->fresh()->last_used_at->toDateTimeString());
     }
 
+    public function test_refreshing_a_token_records_when_the_client_was_used(): void
+    {
+        config(['client-credentials.oauth.refresh_tokens_enabled' => true]);
+        Carbon::setTestNow('2026-11-17 10:00:00');
+        $client = $this->client();
+        $refresh = $this->postJson('/api/oauth/token', [
+            'grant_type' => 'client_credentials', 'client_id' => $client->id, 'client_secret' => $client->plainSecret,
+        ])->assertOk()->json('refresh_token');
+
+        Carbon::setTestNow('2026-11-17 13:00:00');
+        $this->postJson('/api/oauth/token', ['grant_type' => 'refresh_token', 'refresh_token' => $refresh])->assertOk();
+
+        $this->assertSame('2026-11-17 13:00:00', $client->fresh()->last_used_at->toDateTimeString());
+    }
+
     public function test_header_authentication_records_use_and_failures_do_not(): void
     {
         $client = $this->client();
