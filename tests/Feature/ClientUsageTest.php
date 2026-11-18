@@ -78,6 +78,18 @@ class ClientUsageTest extends TestCase
         $this->assertSame([$ci->id], Client::ofType('ci')->pluck('id')->all());
     }
 
+    public function test_recording_use_leaves_other_unsaved_changes_alone(): void
+    {
+        $client = $this->client();
+        $client->name = 'Renamed';
+
+        $client->markUsed();
+
+        $this->assertSame('Test App', $client->fresh()->name);
+        $this->assertNotNull($client->fresh()->last_used_at);
+        $this->assertSame(['name'], array_keys($client->getDirty()));
+    }
+
     public function test_recording_use_does_not_fire_model_events(): void
     {
         Carbon::setTestNow('2026-11-17 10:00:00');

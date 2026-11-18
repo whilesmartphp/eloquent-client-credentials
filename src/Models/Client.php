@@ -74,6 +74,8 @@ class Client extends Model
 
     public function markUsed(): void
     {
-        $this->forceFill(['last_used_at' => now()])->saveQuietly();
+        $now = now();
+        $this->newQueryWithoutScopes()->whereKey($this->getKey())->toBase()->update(['last_used_at' => $now]);
+        $this->forceFill(['last_used_at' => $now])->syncOriginalAttribute('last_used_at');
     }
 }
