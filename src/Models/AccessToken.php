@@ -3,6 +3,7 @@
 namespace Whilesmart\EloquentClientCredentials\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Whilesmart\EloquentClientCredentials\Concerns\HasConfigurableIds;
 
@@ -19,6 +20,9 @@ class AccessToken extends Model
         'scopes',
         'expires_at',
         'revoked',
+        'user_type',
+        'user_id',
+        'claims',
     ];
 
     protected $hidden = [
@@ -29,11 +33,22 @@ class AccessToken extends Model
         'scopes' => 'array',
         'expires_at' => 'datetime',
         'revoked' => 'boolean',
+        'claims' => 'array',
     ];
 
     public function client(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function user(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function refreshTokens(): HasMany
+    {
+        return $this->hasMany(RefreshToken::class, 'access_token_id');
     }
 
     public function isExpired(): bool

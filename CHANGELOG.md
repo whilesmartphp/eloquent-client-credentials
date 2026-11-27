@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Authorization code grant with PKCE (S256 only), dynamic client registration, rotating refresh tokens and discovery metadata, so users can authorize apps such as MCP clients. Off by default.
+- Users approve on the host's consent page through the consent routes, and can list and disconnect the apps they authorized
+- `oauth` guard that authenticates the user behind an authorization code access token
+- `AuthorizationClaimsResolver` for adding host claims, such as a workspace, to access tokens
+- `client-credentials:oauth-keys` command to create the signing key pair
+
+### Changed
+- Client secrets are optional, so public clients can register without one
+- A client with recorded grant types can only use those grants. Existing clients have none recorded and keep working with the client credentials grant and middleware.
+
 ## [0.2.0] - 2026-11-17
 
 ### Added

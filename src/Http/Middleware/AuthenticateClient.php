@@ -22,7 +22,7 @@ class AuthenticateClient
         $modelClass = $model ?? config('client-credentials.default_model');
         $client = $modelClass::find($clientId);
 
-        if (! $client) {
+        if (! $client || (method_exists($client, 'allowsClientCredentials') && ! $client->allowsClientCredentials())) {
             return response()->json([
                 'message' => __('client-credentials.invalid_client'),
             ], 401);

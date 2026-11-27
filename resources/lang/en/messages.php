@@ -17,4 +17,7 @@ return [
     'refresh_tokens_disabled' => 'Refresh tokens are not enabled.',
     'invalid_refresh_token' => 'Invalid or expired refresh token.',
     'owner_required' => 'Authentication required for client operations.',
+    'authorization_request_not_found' => 'This authorization request has expired or was already answered.',
+    'connection_not_found' => 'No connection to this app was found.',
+    'connection_revoked' => 'The app was disconnected.',
 ];
