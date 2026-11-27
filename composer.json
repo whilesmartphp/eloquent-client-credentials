@@ -1,7 +1,7 @@
 {
     "name": "whilesmart/eloquent-client-credentials",
     "description": "OAuth 2 client credentials and authorization code grants for any Eloquent model",
-    "package-version": "0.2.0",
+    "package-version": "0.3.0",
     "type": "library",
     "license": "MIT",
     "authors": [
