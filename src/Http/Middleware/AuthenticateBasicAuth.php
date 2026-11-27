@@ -27,7 +27,7 @@ class AuthenticateBasicAuth
         $modelClass = $model ?? config('client-credentials.default_model');
         $client = $modelClass::find($clientId);
 
-        if (! $client) {
+        if (! $client || (method_exists($client, 'allowsClientCredentials') && ! $client->allowsClientCredentials())) {
             return $this->unauthorized(__('client-credentials::messages.invalid_client'));
         }
 

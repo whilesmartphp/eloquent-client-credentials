@@ -34,7 +34,7 @@ class TokenController extends ApiController
         $model = config('client-credentials.default_model');
         $client = $model::find($request->client_id);
 
-        if (! $client || ! $client->verifySecret($request->client_secret)) {
+        if (! $client || ! $client->verifySecret($request->client_secret) || ! $this->allowsClientCredentials($client)) {
             return $this->failure(__('client-credentials::messages.invalid_credentials'), 401);
         }
 
@@ -107,7 +107,7 @@ class TokenController extends ApiController
         $oldAccessToken = $refreshToken->accessToken;
         $client = $oldAccessToken->client;
 
-        if (! $client || $client->revoked) {
+        if (! $client || $client->revoked || ! $this->allowsClientCredentials($client)) {
             return $this->failure(__('client-credentials::messages.client_revoked'), 403);
         }
 
@@ -150,6 +150,11 @@ class TokenController extends ApiController
         ]);
 
         return $this->runAfterHooks($request, $response, HookAction::TOKEN_ISSUE);
+    }
+
+    protected function allowsClientCredentials($client): bool
+    {
+        return ! method_exists($client, 'allowsClientCredentials') || $client->allowsClientCredentials();
     }
 
     public function revoke(Request $request): JsonResponse

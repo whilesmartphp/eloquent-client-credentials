@@ -24,11 +24,15 @@ class Client extends Model
         'owner_id',
         'revoked',
         'type',
+        'redirect_uris',
+        'grant_types',
     ];
 
     protected $casts = [
         'revoked' => 'boolean',
         'last_used_at' => 'datetime',
+        'redirect_uris' => 'array',
+        'grant_types' => 'array',
     ];
 
     public function sluggable(): array
