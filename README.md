@@ -216,7 +216,7 @@ The command writes an RSA key pair to `storage/`. To keep keys out of the filesy
 
 The `api/oauth` routes use `consent_middleware`, `['api', 'auth:sanctum']` by default.
 
-Registration accepts the redirect URIs listed in `registration.redirect_uris` (Claude's callback by default) and loopback addresses on any port. A loopback client registered on one port may return to `127.0.0.1` or `[::1]` on another; a `localhost` redirect must match exactly. A registered client can only use the grants it registered for, so it cannot use the client credentials grant or the client middleware.
+Registration accepts the redirect URIs listed in `registration.redirect_uris` (Claude's and ChatGPT's callbacks by default) and loopback addresses on any port. A loopback client registered on one port may return to `127.0.0.1` or `[::1]` on another; a `localhost` redirect must match exactly. A registered client can only use the grants it registered for, so it cannot use the client credentials grant or the client middleware.
 
 Codes and refresh tokens work once, including when two requests race to use the same one. A failed attempt, such as a wrong PKCE verifier, leaves them usable.
 
@@ -233,6 +233,8 @@ Pending consent requests and unused codes live in the cache for a few minutes, s
 3. Sends the browser to the `redirect_to` it gets back.
 
 A request expires after `request_lifetime` seconds and can be answered once.
+
+Every redirect back to a client, including errors, carries an `iss` parameter set to the issuer (RFC 9207). A client connected to several authorization servers uses it to check which one answered.
 
 ### Protecting routes
 

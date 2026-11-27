@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Whilesmart\EloquentClientCredentials\Authorization\Entities\UserEntity;
 use Whilesmart\EloquentClientCredentials\Authorization\GrantContext;
+use Whilesmart\EloquentClientCredentials\Authorization\IssuerIdentification;
 use Whilesmart\EloquentClientCredentials\Authorization\PendingAuthorization;
 use Whilesmart\EloquentClientCredentials\Authorization\Psr;
 use Whilesmart\EloquentClientCredentials\Authorization\Repositories\ClientRepository;
@@ -69,7 +70,9 @@ class AuthorizationRequestController
         $authorizationRequest->setUser(new UserEntity((string) $user->getAuthIdentifier()));
         $authorizationRequest->setAuthorizationApproved(true);
 
-        $response = $factory->make()->completeAuthorizationRequest($authorizationRequest, Psr::newResponse());
+        $response = IssuerIdentification::apply(
+            $factory->make()->completeAuthorizationRequest($authorizationRequest, Psr::newResponse())
+        );
 
         return response()->json(['data' => ['redirect_to' => $response->getHeaderLine('Location')]]);
     }
@@ -89,7 +92,7 @@ class AuthorizationRequestController
         try {
             $factory->make()->completeAuthorizationRequest($authorizationRequest, Psr::newResponse());
         } catch (OAuthServerException $exception) {
-            $response = $exception->generateHttpResponse(Psr::newResponse());
+            $response = IssuerIdentification::apply($exception->generateHttpResponse(Psr::newResponse()));
 
             return response()->json(['data' => ['redirect_to' => $response->getHeaderLine('Location')]]);
         }

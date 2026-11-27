@@ -7,6 +7,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Whilesmart\EloquentClientCredentials\Authorization\Entities\AccessTokenEntity;
+use Whilesmart\EloquentClientCredentials\Authorization\IssuerIdentification;
 use Whilesmart\EloquentClientCredentials\Authorization\PendingAuthorization;
 use Whilesmart\EloquentClientCredentials\Authorization\Psr;
 use Whilesmart\EloquentClientCredentials\Authorization\ServerFactory;
@@ -27,7 +28,7 @@ class AuthorizeController
         try {
             $authorizationRequest = $factory->make()->validateAuthorizationRequest(Psr::request($request));
         } catch (OAuthServerException $exception) {
-            return Psr::response($exception->generateHttpResponse(Psr::newResponse()));
+            return Psr::response(IssuerIdentification::apply($exception->generateHttpResponse(Psr::newResponse())));
         }
 
         $consentUrl = config('client-credentials.authorization_code.consent_url');

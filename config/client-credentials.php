@@ -89,6 +89,7 @@ return [
             'enabled' => true,
             'redirect_uris' => [
                 'https://claude.ai/api/mcp/auth_callback',
+                'https://chatgpt.com/connector_platform_oauth_redirect',
             ],
             'loopback' => true,
             'throttle' => '10,1',
