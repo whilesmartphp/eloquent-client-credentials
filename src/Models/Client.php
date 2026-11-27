@@ -26,7 +26,6 @@ class Client extends Model
         'type',
         'redirect_uris',
         'grant_types',
-        'confidential',
     ];
 
     protected $casts = [
@@ -34,7 +33,6 @@ class Client extends Model
         'last_used_at' => 'datetime',
         'redirect_uris' => 'array',
         'grant_types' => 'array',
-        'confidential' => 'boolean',
     ];
 
     public function sluggable(): array

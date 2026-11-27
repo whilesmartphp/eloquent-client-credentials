@@ -42,8 +42,11 @@ class RegistrationController
             'name' => $request->input('client_name') ?: parse_url($request->input('redirect_uris')[0], PHP_URL_HOST) ?: 'OAuth client',
             'redirect_uris' => array_values($request->input('redirect_uris')),
             'grant_types' => array_values($grantTypes),
-            'confidential' => $confidential,
         ]);
+
+        if (! $confidential) {
+            $client->forceFill(['secret' => null])->save();
+        }
 
         $response = [
             'client_id' => (string) $client->getKey(),

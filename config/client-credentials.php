@@ -81,6 +81,7 @@ return [
         'code_lifetime' => 600,
         'request_lifetime' => 600,
         'token_throttle' => '60,1',
+        'lock_wait' => 5,
         'private_key' => env('CLIENT_CREDENTIALS_OAUTH_PRIVATE_KEY'),
         'public_key' => env('CLIENT_CREDENTIALS_OAUTH_PUBLIC_KEY'),
         'encryption_key' => env('CLIENT_CREDENTIALS_OAUTH_ENCRYPTION_KEY'),

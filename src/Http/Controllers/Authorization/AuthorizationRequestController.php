@@ -33,7 +33,7 @@ class AuthorizationRequestController
                     'id' => (string) $client->getKey(),
                     'name' => $client->name,
                 ],
-                'redirect_host' => parse_url($pending->data['redirect_uri'] ?? '', PHP_URL_HOST),
+                'redirect_host' => parse_url($pending->data['display_redirect_uri'] ?? '', PHP_URL_HOST),
                 'scopes' => array_map(fn (string $scope) => [
                     'id' => $scope,
                     'description' => $descriptions[$scope] ?? $scope,

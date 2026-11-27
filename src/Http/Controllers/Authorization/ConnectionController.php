@@ -4,6 +4,7 @@ namespace Whilesmart\EloquentClientCredentials\Http\Controllers\Authorization;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Whilesmart\EloquentClientCredentials\Authorization\Connections;
 use Whilesmart\EloquentClientCredentials\Models\AccessToken;
 use Whilesmart\EloquentClientCredentials\Models\RefreshToken;
 
@@ -40,10 +41,16 @@ class ConnectionController
 
     public function destroy(Request $request, string $client): JsonResponse
     {
-        $tokens = $this->tokens($request)->where('client_id', $client);
+        $user = $request->user();
 
-        RefreshToken::whereIn('access_token_id', (clone $tokens)->select('id'))->update(['revoked' => true]);
-        $revoked = $tokens->update(['revoked' => true]);
+        $revoked = Connections::exclusively($client, function () use ($request, $user, $client) {
+            Connections::advance($client, $user->getMorphClass(), (string) $user->getAuthIdentifier());
+
+            $tokens = $this->tokens($request)->where('client_id', $client);
+            RefreshToken::whereIn('access_token_id', (clone $tokens)->select('id'))->update(['revoked' => true]);
+
+            return $tokens->update(['revoked' => true]);
+        });
 
         if ($revoked === 0) {
             return response()->json(['message' => __('client-credentials::messages.connection_not_found')], 404);

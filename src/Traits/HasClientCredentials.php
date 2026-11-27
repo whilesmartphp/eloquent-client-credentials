@@ -12,7 +12,7 @@ trait HasClientCredentials
     public static function bootHasClientCredentials(): void
     {
         static::creating(function ($model) {
-            if (empty($model->secret) && $model->confidential !== false) {
+            if (empty($model->secret)) {
                 $model->setSecret(Str::random(40));
             }
         });

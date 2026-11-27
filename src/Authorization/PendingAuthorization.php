@@ -24,6 +24,7 @@ class PendingAuthorization
         $data = [
             'client_id' => $request->getClient()->getIdentifier(),
             'redirect_uri' => $request->getRedirectUri(),
+            'display_redirect_uri' => $request->getRedirectUri() ?? static::soleRedirectUri($request->getClient()->getRedirectUri()),
             'state' => $request->getState(),
             'scopes' => array_map(fn ($scope) => $scope->getIdentifier(), $request->getScopes()),
             'code_challenge' => $request->getCodeChallenge(),
@@ -73,6 +74,13 @@ class PendingAuthorization
         }
 
         return $request;
+    }
+
+    protected static function soleRedirectUri(string|array $uris): ?string
+    {
+        $uris = (array) $uris;
+
+        return count($uris) === 1 ? $uris[0] : null;
     }
 
     protected static function key(string $id): string

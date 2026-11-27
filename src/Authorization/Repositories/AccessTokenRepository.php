@@ -9,7 +9,6 @@ use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Whilesmart\EloquentClientCredentials\Authorization\Entities\AccessTokenEntity;
 use Whilesmart\EloquentClientCredentials\Authorization\GrantContext;
 use Whilesmart\EloquentClientCredentials\Models\AccessToken;
-use Whilesmart\EloquentClientCredentials\Models\AuthorizationCode;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
@@ -75,14 +74,14 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     protected function resolveGrantOrigin(): void
     {
         $origin = match (true) {
-            $this->context->authorizationCodeId !== null => AuthorizationCode::find($this->context->authorizationCodeId),
-            $this->context->previousAccessTokenId !== null => AccessToken::where('token', $this->context->previousAccessTokenId)->first(),
+            $this->context->authorizationCodeId !== null => (new AuthCodeRepository($this->context))->find($this->context->authorizationCodeId),
+            $this->context->previousAccessTokenId !== null => AccessToken::where('token', $this->context->previousAccessTokenId)->first()?->only(['user_type', 'claims']),
             default => null,
         };
 
         if ($origin) {
-            $this->context->userType = $origin->user_type;
-            $this->context->claims = $origin->claims ?? [];
+            $this->context->userType = $origin['user_type'];
+            $this->context->claims = $origin['claims'] ?? [];
         }
     }
 }

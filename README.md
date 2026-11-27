@@ -216,9 +216,13 @@ The command writes an RSA key pair to `storage/`. To keep keys out of the filesy
 
 The `api/oauth` routes use `consent_middleware`, `['api', 'auth:sanctum']` by default.
 
-Registration accepts the redirect URIs listed in `registration.redirect_uris` (Claude's callback by default) and loopback addresses on any port. A loopback client registered on one port may return to `127.0.0.1` or `[::1]` on another. A registered client can only use the grants it registered for, so it cannot use the client credentials grant or the client middleware.
+Registration accepts the redirect URIs listed in `registration.redirect_uris` (Claude's callback by default) and loopback addresses on any port. A loopback client registered on one port may return to `127.0.0.1` or `[::1]` on another; a `localhost` redirect must match exactly. A registered client can only use the grants it registered for, so it cannot use the client credentials grant or the client middleware.
 
-Codes and refresh tokens work once, including when two requests race to use the same one. A failed attempt, such as a wrong PKCE verifier, leaves them usable. Answering a consent request once relies on the cache store's atomic `add`, which every shared Laravel store (Redis, database, Memcached, file, DynamoDB) provides.
+Codes and refresh tokens work once, including when two requests race to use the same one. A failed attempt, such as a wrong PKCE verifier, leaves them usable.
+
+Disconnecting an app revokes its tokens and refuses any code the user approved but the app has not redeemed yet.
+
+Pending consent requests and unused codes live in the cache for a few minutes, so every app server must share one cache store. Single use and disconnects rely on the store's atomic `add` and its locks, which every shared Laravel store (Redis, database, Memcached, file, DynamoDB) provides.
 
 ### Consent page
 
@@ -272,6 +276,8 @@ The consent page sends the choice as `context` with the approval. Refreshed toke
 ### Verifying tokens in another service
 
 Access tokens are RS256 JWTs. A resource server outside Laravel verifies them with the key at `/.well-known/jwks.json` and checks `iss`, `aud` and `exp`. `scope` holds the granted scopes, space separated.
+
+Signature checks alone do not see revocation: a token from a disconnected app keeps working there until it expires, `access_token_lifetime` (an hour) at most. Keep that lifetime short, or have the service check the token's `jti` against your revocations.
 
 ## Middleware
 

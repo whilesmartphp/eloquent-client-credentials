@@ -21,7 +21,7 @@ class ClientRepository implements ClientRepositoryInterface
             (string) $client->getKey(),
             $client->name,
             $client->redirect_uris ?? [],
-            (bool) $client->confidential,
+            $client->secret !== null,
             (array) ($client->grant_types ?? []),
         );
     }
@@ -34,7 +34,7 @@ class ClientRepository implements ClientRepositoryInterface
             return false;
         }
 
-        if ($client->confidential && ($clientSecret === null || ! $client->verifySecret($clientSecret))) {
+        if ($client->secret !== null && ($clientSecret === null || ! $client->verifySecret($clientSecret))) {
             return false;
         }
 

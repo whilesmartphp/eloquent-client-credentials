@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use Defuse\Crypto\Crypto;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -13,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Tests\TestCase;
 use Whilesmart\EloquentClientCredentials\Authorization\GrantContext;
+use Whilesmart\EloquentClientCredentials\Authorization\Keys;
 use Whilesmart\EloquentClientCredentials\Authorization\Repositories\AccessTokenRepository;
 use Whilesmart\EloquentClientCredentials\Authorization\Repositories\AuthCodeRepository;
 use Whilesmart\EloquentClientCredentials\Authorization\Repositories\ClientRepository;
@@ -22,7 +25,6 @@ use Whilesmart\EloquentClientCredentials\Http\Controllers\TokenController;
 use Whilesmart\EloquentClientCredentials\Http\Middleware\AuthenticateBasicAuth;
 use Whilesmart\EloquentClientCredentials\Http\Middleware\AuthenticateBearerToken;
 use Whilesmart\EloquentClientCredentials\Http\Middleware\AuthenticateClient;
-use Whilesmart\EloquentClientCredentials\Models\AuthorizationCode;
 use Whilesmart\EloquentClientCredentials\Models\Client;
 use Whilesmart\EloquentClientCredentials\Models\RefreshToken;
 use Workbench\App\Models\User;
@@ -136,7 +138,6 @@ class AuthorizationCodeTest extends TestCase
 
         $client = Client::where('name', 'Claude')->firstOrFail();
         $this->assertNull($client->secret);
-        $this->assertFalse($client->confidential);
     }
 
     public function test_a_confidential_client_receives_a_secret_once(): void
@@ -240,6 +241,24 @@ class AuthorizationCodeTest extends TestCase
             ->assertJson(['error' => 'invalid_client']);
     }
 
+    public function test_consent_shows_the_registered_host_when_the_request_names_none(): void
+    {
+        $clientId = $this->register();
+        [, $challenge] = $this->pkce();
+
+        $this->fresh();
+        $response = $this->get('/oauth/authorize?'.http_build_query([
+            'response_type' => 'code',
+            'client_id' => $clientId,
+            'code_challenge' => $challenge,
+            'code_challenge_method' => 'S256',
+        ]));
+
+        $this->actingAs($this->user())->getJson('/api/oauth/authorization-requests/'.$this->pendingId($response))
+            ->assertOk()
+            ->assertJsonPath('data.redirect_host', 'claude.ai');
+    }
+
     public function test_a_loopback_redirect_may_use_another_port(): void
     {
         $clientId = $this->register('http://127.0.0.1:33418/callback');
@@ -318,6 +337,38 @@ class AuthorizationCodeTest extends TestCase
         $this->refresh($clientId, $tokens['refresh_token'])->assertStatus(400);
         $this->actingAs($user)->getJson('/api/oauth/connections')->assertJsonCount(0, 'data');
         $this->actingAs($other)->getJson('/api/oauth/connections')->assertJsonCount(1, 'data');
+    }
+
+    public function test_disconnecting_refuses_codes_approved_before_it(): void
+    {
+        $user = $this->user();
+        [$clientId] = $this->connect($user);
+        [$verifier, $challenge] = $this->pkce();
+        $code = $this->code($this->approve($user, $this->pendingId($this->authorize($clientId, $challenge))));
+
+        $this->actingAs($user)->deleteJson("/api/oauth/connections/{$clientId}")->assertOk();
+
+        $this->exchange($clientId, $code, $verifier)->assertStatus(400)->assertJson(['error' => 'invalid_grant']);
+
+        [$verifier, $challenge] = $this->pkce();
+        $code = $this->code($this->approve($user, $this->pendingId($this->authorize($clientId, $challenge))));
+        $this->exchange($clientId, $code, $verifier)->assertOk();
+    }
+
+    public function test_tokens_are_not_issued_while_the_client_is_being_disconnected(): void
+    {
+        [$clientId, $tokens] = $this->connect($this->user());
+        config(['client-credentials.authorization_code.lock_wait' => 0]);
+
+        $lock = Cache::lock('client-credentials:client-lock:'.sha1($clientId), 10);
+        $lock->get();
+
+        $this->refresh($clientId, $tokens['refresh_token'])
+            ->assertStatus(503)
+            ->assertJson(['error' => 'temporarily_unavailable']);
+
+        $lock->release();
+        $this->refresh($clientId, $tokens['refresh_token'])->assertOk();
     }
 
     public function test_host_claims_reach_the_token_and_survive_refresh(): void
@@ -404,12 +455,12 @@ class AuthorizationCodeTest extends TestCase
         $user = $this->user();
         $clientId = $this->register();
         [$verifier, $challenge] = $this->pkce();
-        $this->code($this->approve($user, $this->pendingId($this->authorize($clientId, $challenge))));
-        $code = AuthorizationCode::firstOrFail();
+        $code = $this->code($this->approve($user, $this->pendingId($this->authorize($clientId, $challenge))));
+        $codeId = json_decode(Crypto::decryptWithPassword($code, Keys::encryptionKey()))->auth_code_id;
 
         $context = new GrantContext;
-        $context->authorizationCodeId = $code->id;
-        $this->assertTrue((new AuthCodeRepository($context))->consume($code->id));
+        $context->authorizationCodeId = $codeId;
+        $this->assertTrue((new AuthCodeRepository($context))->consume($codeId));
 
         $this->expectException(OAuthServerException::class);
         (new AccessTokenRepository($context))->persistNewAccessToken(
