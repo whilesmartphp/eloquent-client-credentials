@@ -4,11 +4,11 @@ namespace Whilesmart\EloquentClientCredentials\Authorization;
 
 /**
  * League calls the repositories without the request that started the grant, so
- * the user type and host claims travel to them through this request-scoped object.
+ * the subject type and host claims travel to them through this request-scoped object.
  */
 class GrantContext
 {
-    public ?string $userType = null;
+    public ?string $subjectType = null;
 
     public array $claims = [];
 

@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Cache;
  */
 class Connections
 {
-    public static function generation(string $clientId, ?string $userType, ?string $userId): int
+    public static function generation(string $clientId, ?string $subjectType, ?string $subjectId): int
     {
-        return (int) Cache::get(static::key($clientId, $userType, $userId), 0);
+        return (int) Cache::get(static::key($clientId, $subjectType, $subjectId), 0);
     }
 
     /**
@@ -23,9 +23,9 @@ class Connections
      * it expires it reads as 0 again, which no code still alive can carry, since
      * any code issued under 0 expired before the counter did.
      */
-    public static function advance(string $clientId, string $userType, string $userId): void
+    public static function advance(string $clientId, string $subjectType, string $subjectId): void
     {
-        $key = static::key($clientId, $userType, $userId);
+        $key = static::key($clientId, $subjectType, $subjectId);
 
         Cache::add($key, 0, (int) config('client-credentials.authorization_code.code_lifetime', 600) * 2);
         Cache::increment($key);
@@ -40,8 +40,8 @@ class Connections
         return Cache::lock('client-credentials:client-lock:'.sha1($clientId), 10)->block((int) config('client-credentials.authorization_code.lock_wait', 5), $callback);
     }
 
-    protected static function key(string $clientId, ?string $userType, ?string $userId): string
+    protected static function key(string $clientId, ?string $subjectType, ?string $subjectId): string
     {
-        return 'client-credentials:connection-generation:'.sha1(json_encode([$clientId, $userType, $userId]));
+        return 'client-credentials:connection-generation:'.sha1(json_encode([$clientId, $subjectType, $subjectId]));
     }
 }

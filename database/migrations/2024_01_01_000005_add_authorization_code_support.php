@@ -15,19 +15,19 @@ return new class extends Migration
         });
 
         Schema::table('client_access_tokens', function (Blueprint $table) {
-            $table->string('user_type')->nullable();
-            $table->string('user_id')->nullable();
+            $table->string('subject_type')->nullable();
+            $table->string('subject_id')->nullable();
             $table->json('claims')->nullable();
 
-            $table->index(['user_type', 'user_id']);
+            $table->index(['subject_type', 'subject_id']);
         });
     }
 
     public function down(): void
     {
         Schema::table('client_access_tokens', function (Blueprint $table) {
-            $table->dropIndex(['user_type', 'user_id']);
-            $table->dropColumn(['user_type', 'user_id', 'claims']);
+            $table->dropIndex(['subject_type', 'subject_id']);
+            $table->dropColumn(['subject_type', 'subject_id', 'claims']);
         });
 
         Schema::table('clients', function (Blueprint $table) {

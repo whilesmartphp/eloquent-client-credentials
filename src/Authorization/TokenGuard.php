@@ -61,19 +61,19 @@ class TokenGuard
 
         $record = AccessToken::query()
             ->where('token', (string) $token->claims()->get('jti'))
-            ->whereNotNull('user_id')
+            ->whereNotNull('subject_id')
             ->valid()
             ->first();
 
         $client = $record?->client;
-        $user = $record?->user;
+        $subject = $record?->subject;
 
-        if (! $client || $client->revoked || ! $user instanceof Authenticatable) {
+        if (! $client || $client->revoked || ! $subject instanceof Authenticatable) {
             return null;
         }
 
         $request->attributes->set('oauth_access_token', $record);
 
-        return $user;
+        return $subject;
     }
 }

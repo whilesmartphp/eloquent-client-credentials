@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Authorization code grant with PKCE (S256 only), dynamic client registration, rotating refresh tokens and discovery metadata, so users can authorize apps such as MCP clients. Off by default.
 - Users approve on the host's consent page through the consent routes, and can list and disconnect the apps they authorized
-- `oauth` guard that authenticates the user behind an authorization code access token
+- `oauth` guard that authenticates the subject behind an authorization code access token
 - `AuthorizationClaimsResolver` for adding host claims, such as a workspace, to access tokens
 - `client-credentials:oauth-keys` command to create the signing key pair
 

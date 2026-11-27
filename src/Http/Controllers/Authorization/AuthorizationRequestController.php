@@ -60,7 +60,7 @@ class AuthorizationRequestController
 
         $user = $request->user();
         $context->claims = $claims->resolve($user, $client, $pending->data['scopes'], (array) $request->input('context', []));
-        $context->userType = $user->getMorphClass();
+        $context->subjectType = $user->getMorphClass();
 
         if (! $pending->consume()) {
             return $this->notFound();

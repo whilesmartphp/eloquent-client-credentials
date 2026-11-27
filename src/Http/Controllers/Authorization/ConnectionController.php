@@ -70,7 +70,7 @@ class ConnectionController
         $user = $request->user();
 
         return AccessToken::query()
-            ->where('user_type', $user->getMorphClass())
-            ->where('user_id', (string) $user->getAuthIdentifier());
+            ->where('subject_type', $user->getMorphClass())
+            ->where('subject_id', (string) $user->getAuthIdentifier());
     }
 }

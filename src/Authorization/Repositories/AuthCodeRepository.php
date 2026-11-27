@@ -26,14 +26,14 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
     public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity): void
     {
         $clientId = $authCodeEntity->getClient()->getIdentifier();
-        $userId = $authCodeEntity->getUserIdentifier();
+        $subjectId = $authCodeEntity->getUserIdentifier();
 
         Cache::put(static::key($authCodeEntity->getIdentifier()), [
             'client_id' => $clientId,
-            'user_type' => $this->context->userType,
-            'user_id' => $userId,
+            'subject_type' => $this->context->subjectType,
+            'subject_id' => $subjectId,
             'claims' => $this->context->claims,
-            'generation' => Connections::generation($clientId, $this->context->userType, $userId),
+            'generation' => Connections::generation($clientId, $this->context->subjectType, $subjectId),
         ], $authCodeEntity->getExpiryDateTime());
     }
 
@@ -55,7 +55,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
             return null;
         }
 
-        $current = Connections::generation($data['client_id'], $data['user_type'], $data['user_id']);
+        $current = Connections::generation($data['client_id'], $data['subject_type'], $data['subject_id']);
 
         return $current === $data['generation'] ? $data : null;
     }

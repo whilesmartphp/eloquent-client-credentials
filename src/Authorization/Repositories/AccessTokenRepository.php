@@ -17,7 +17,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function getNewToken(
         ClientEntityInterface $clientEntity,
         array $scopes,
-        ?string $userIdentifier = null
+        ?string $subjectIdentifier = null
     ): AccessTokenEntityInterface {
         $this->resolveGrantOrigin();
 
@@ -29,8 +29,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
             $token->addScope($scope);
         }
 
-        if ($userIdentifier !== null) {
-            $token->setUserIdentifier($userIdentifier);
+        if ($subjectIdentifier !== null) {
+            $token->setUserIdentifier($subjectIdentifier);
         }
 
         return $token;
@@ -55,8 +55,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
             'scopes' => array_map(fn ($scope) => $scope->getIdentifier(), $accessTokenEntity->getScopes()),
             'expires_at' => $accessTokenEntity->getExpiryDateTime(),
             'revoked' => false,
-            'user_type' => $this->context->userType,
-            'user_id' => $accessTokenEntity->getUserIdentifier(),
+            'subject_type' => $this->context->subjectType,
+            'subject_id' => $accessTokenEntity->getUserIdentifier(),
             'claims' => $this->context->claims,
         ]);
     }
@@ -75,12 +75,12 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     {
         $origin = match (true) {
             $this->context->authorizationCodeId !== null => (new AuthCodeRepository($this->context))->find($this->context->authorizationCodeId),
-            $this->context->previousAccessTokenId !== null => AccessToken::where('token', $this->context->previousAccessTokenId)->first()?->only(['user_type', 'claims']),
+            $this->context->previousAccessTokenId !== null => AccessToken::where('token', $this->context->previousAccessTokenId)->first()?->only(['subject_type', 'claims']),
             default => null,
         };
 
         if ($origin) {
-            $this->context->userType = $origin['user_type'];
+            $this->context->subjectType = $origin['subject_type'];
             $this->context->claims = $origin['claims'] ?? [];
         }
     }

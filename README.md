@@ -236,7 +236,7 @@ A request expires after `request_lifetime` seconds and can be answered once.
 
 ### Protecting routes
 
-The package registers an `oauth` guard. It accepts the access tokens issued here and authenticates the user who approved them:
+The package registers an `oauth` guard. It accepts the access tokens issued here and authenticates the subject that approved them, the `subject_type` and `subject_id` on the token. That is usually a user, but any authenticatable model can approve:
 
 ```php
 Route::middleware('auth:sanctum,oauth')->group(...);

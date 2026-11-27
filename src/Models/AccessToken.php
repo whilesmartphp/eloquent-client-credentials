@@ -20,8 +20,8 @@ class AccessToken extends Model
         'scopes',
         'expires_at',
         'revoked',
-        'user_type',
-        'user_id',
+        'subject_type',
+        'subject_id',
         'claims',
     ];
 
@@ -41,7 +41,7 @@ class AccessToken extends Model
         return $this->morphTo();
     }
 
-    public function user(): MorphTo
+    public function subject(): MorphTo
     {
         return $this->morphTo();
     }
