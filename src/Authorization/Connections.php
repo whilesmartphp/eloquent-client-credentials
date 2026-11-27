@@ -18,11 +18,16 @@ class Connections
         return (int) Cache::get(static::key($clientId, $userType, $userId), 0);
     }
 
+    /**
+     * The counter only has to outlive the codes issued before it advanced. Once
+     * it expires it reads as 0 again, which no code still alive can carry, since
+     * any code issued under 0 expired before the counter did.
+     */
     public static function advance(string $clientId, string $userType, string $userId): void
     {
         $key = static::key($clientId, $userType, $userId);
 
-        Cache::add($key, 0);
+        Cache::add($key, 0, (int) config('client-credentials.authorization_code.code_lifetime', 600) * 2);
         Cache::increment($key);
     }
 

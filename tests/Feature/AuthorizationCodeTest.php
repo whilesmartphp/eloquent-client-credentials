@@ -14,6 +14,7 @@ use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\ValidationException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Tests\TestCase;
+use Whilesmart\EloquentClientCredentials\Authorization\Connections;
 use Whilesmart\EloquentClientCredentials\Authorization\GrantContext;
 use Whilesmart\EloquentClientCredentials\Authorization\Keys;
 use Whilesmart\EloquentClientCredentials\Authorization\Repositories\AccessTokenRepository;
@@ -337,6 +338,16 @@ class AuthorizationCodeTest extends TestCase
         $this->refresh($clientId, $tokens['refresh_token'])->assertStatus(400);
         $this->actingAs($user)->getJson('/api/oauth/connections')->assertJsonCount(0, 'data');
         $this->actingAs($other)->getJson('/api/oauth/connections')->assertJsonCount(1, 'data');
+    }
+
+    public function test_disconnecting_an_unknown_client_stores_nothing(): void
+    {
+        $user = $this->user();
+        $clientId = (string) Str::uuid();
+
+        $this->actingAs($user)->deleteJson("/api/oauth/connections/{$clientId}")->assertNotFound();
+
+        $this->assertSame(0, Connections::generation($clientId, $user->getMorphClass(), (string) $user->getKey()));
     }
 
     public function test_disconnecting_refuses_codes_approved_before_it(): void

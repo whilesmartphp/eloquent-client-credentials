@@ -41,6 +41,12 @@ class ConnectionController
 
     public function destroy(Request $request, string $client): JsonResponse
     {
+        $model = config('client-credentials.default_model');
+
+        if (! $model::find($client)) {
+            return response()->json(['message' => __('client-credentials::messages.connection_not_found')], 404);
+        }
+
         $user = $request->user();
 
         $revoked = Connections::exclusively($client, function () use ($request, $user, $client) {
