@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `oauth` guard that authenticates the subject behind an authorization code access token
 - `AuthorizationClaimsResolver` for adding host claims, such as a workspace, to access tokens
 - `client-credentials:oauth-keys` command to create the signing key pair
+- Authorization responses name the issuer (RFC 9207), and ChatGPT's callback is accepted at registration by default
 
 ### Changed
 - Client secrets are optional, so public clients can register without one

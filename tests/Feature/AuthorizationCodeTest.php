@@ -34,6 +34,8 @@ class AuthorizationCodeTest extends TestCase
 {
     private const CLAUDE_CALLBACK = 'https://claude.ai/api/mcp/auth_callback';
 
+    private const CHATGPT_CALLBACK = 'https://chatgpt.com/connector_platform_oauth_redirect';
+
     private static ?array $keys = null;
 
     protected function getEnvironmentSetUp($app): void
@@ -102,6 +104,7 @@ class AuthorizationCodeTest extends TestCase
                 'code_challenge_methods_supported' => ['S256'],
                 'grant_types_supported' => ['authorization_code', 'refresh_token'],
                 'scopes_supported' => ['mcp:use'],
+                'authorization_response_iss_parameter_supported' => true,
             ]);
     }
 
@@ -120,8 +123,10 @@ class AuthorizationCodeTest extends TestCase
             ]);
     }
 
-    public function test_registration_accepts_claude_and_loopback_callbacks_only(): void
+    public function test_registration_accepts_known_and_loopback_callbacks_only(): void
     {
+        $this->postJson('/oauth/register', ['redirect_uris' => [self::CHATGPT_CALLBACK]])->assertCreated();
+
         $this->postJson('/oauth/register', ['redirect_uris' => [self::CLAUDE_CALLBACK], 'client_name' => 'Claude'])
             ->assertCreated()
             ->assertJson(['token_endpoint_auth_method' => 'none', 'grant_types' => ['authorization_code', 'refresh_token']])
@@ -172,6 +177,7 @@ class AuthorizationCodeTest extends TestCase
         $this->assertStringStartsWith(self::CLAUDE_CALLBACK.'?', $redirect);
         parse_str(parse_url($redirect, PHP_URL_QUERY), $query);
         $this->assertSame('xyz', $query['state']);
+        $this->assertSame('https://api.example.test', $query['iss']);
 
         $tokens = $this->exchange($clientId, $query['code'], $verifier)->assertOk()->json();
         $this->assertSame('Bearer', $tokens['token_type']);
@@ -294,7 +300,24 @@ class AuthorizationCodeTest extends TestCase
         parse_str(parse_url($redirect, PHP_URL_QUERY), $query);
         $this->assertSame('access_denied', $query['error']);
         $this->assertSame('abc', $query['state']);
+        $this->assertSame('https://api.example.test', $query['iss']);
         $this->assertArrayNotHasKey('code', $query);
+    }
+
+    public function test_an_error_sent_to_the_client_names_the_issuer(): void
+    {
+        $clientId = $this->register();
+        [, $challenge] = $this->pkce();
+
+        $location = $this->authorize($clientId, $challenge, ['scope' => 'unknown', 'state' => 'abc'])
+            ->assertRedirect()
+            ->headers->get('Location');
+
+        $this->assertStringStartsWith(self::CLAUDE_CALLBACK.'?', $location);
+        parse_str(parse_url($location, PHP_URL_QUERY), $query);
+        $this->assertSame('invalid_scope', $query['error']);
+        $this->assertSame('abc', $query['state']);
+        $this->assertSame('https://api.example.test', $query['iss']);
     }
 
     public function test_an_authorization_request_can_be_answered_once(): void
